@@ -26,7 +26,7 @@ def make_data() -> tuple[HeapDict[int, int], list[tuple[int, int]], dict[int, in
         )
         for _ in range(N)
     ]
-    h = HeapDict.from_iterable(pairs)
+    h = HeapDict(pairs)
     d = {k: v for k, v in pairs}
     pairs.sort(key=lambda x: x[1], reverse=True)
     return h, pairs, d

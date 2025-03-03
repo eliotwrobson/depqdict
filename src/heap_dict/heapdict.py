@@ -12,9 +12,12 @@ class HeapDict(MutableMapping, Generic[K, V]):
     heap: list[_InternalHeapItem]
     h_dict: dict[K, list[K | V | int]]
 
-    def __init__(self, iterable: Iterable[HeapItem]) -> None:
+    def __init__(self, iterable: None | Iterable[HeapItem] = None) -> None:
         self.heap = []
         self.h_dict = {}
+
+        if iterable is None:
+            return
 
         for i, (key, value) in enumerate(iterable):
             wrapper = [value, key, i]
