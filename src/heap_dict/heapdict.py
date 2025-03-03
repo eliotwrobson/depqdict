@@ -12,6 +12,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
     heap: list[_InternalHeapItem]
     h_dict: dict[K, list[K | V | int]]
 
+    __slots__ = ("heap", "h_dict")
+
     def __init__(self, iterable: None | Iterable[HeapItem] = None) -> None:
         self.heap = []
         self.h_dict = {}
@@ -101,6 +103,7 @@ class HeapDict(MutableMapping, Generic[K, V]):
     def popitem(self) -> HeapItem:
         """D.popitem() -> (k, v), remove and return the (key, value) pair with lowest\nvalue; but raise KeyError if D is empty."""
         wrapper = self.heap[0]
+
         if len(self.heap) == 1:
             self.heap.pop()
         else:

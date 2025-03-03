@@ -17,16 +17,18 @@ def check_invariants(h) -> None:
         assert h.heap[parent][0] <= h.heap[i][0]
 
 
-def make_data() -> tuple[HeapDict[int, int], list[tuple[int, int]], dict[int, int]]:
+def make_data() -> tuple[
+    HeapDict[int, float], list[tuple[int, float]], dict[int, float]
+]:
     random.seed(SEED)
-    pairs: list[tuple[int, int]] = [
+    pairs: list[tuple[int, float]] = [
         (
             random.randint(0, NUM_RANGE),
             random.randint(0, NUM_RANGE),
         )
         for _ in range(N)
     ]
-    h = HeapDict(pairs)
+    h: HeapDict[int, float] = HeapDict(pairs)
     d = {k: v for k, v in pairs}
     pairs.sort(key=lambda x: x[1], reverse=True)
     return h, pairs, d
@@ -43,7 +45,7 @@ def test_popitem() -> None:
 
 
 def test_popitem_ties() -> None:
-    h = HeapDict()
+    h: HeapDict[int, float] = HeapDict()
     for i in range(N):
         h[i] = 0
     for _ in range(N):
