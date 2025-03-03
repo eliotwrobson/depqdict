@@ -29,7 +29,9 @@ class HeapDict(MutableMapping, Generic[K, V]):
 
     __slots__ = ("_heap", "_mapping")
 
-    def __init__(self, iterable: None | Iterable[HeapItem] = None) -> None:
+    def __init__(
+        self, iterable: None | Iterable[HeapItem] | Mapping[K, V] = None
+    ) -> None:
         """Initialize priority queue instance.
 
         Optional *iterable* argument provides an initial iterable of pairs
@@ -55,14 +57,19 @@ class HeapDict(MutableMapping, Generic[K, V]):
         if iterable is None:
             return
         elif isinstance(iterable, Mapping):
-            iterable = iterable.items()
+            iterable_items: Iterable[HeapItem] = iterable.items()
+        elif isinstance(iterable, Iterable):
+            iterable_items: Iterable[HeapItem] = iterable  # type: ignore[no-redef]
         elif not isinstance(iterable, Iterable):
             raise TypeError(f"{type(iterable).__qualname__!r} object is not iterable")
 
-        for i, (key, value) in enumerate(iterable):
-            wrapper = [value, key, i]
-            self._heap.append(wrapper)
-            self._mapping[key] = wrapper
+        for i, (key, value) in enumerate(iterable_items):
+            if key in self._mapping:
+                self._mapping[key][0] = value
+            else:
+                wrapper = [value, key, i]
+                self._heap.append(wrapper)
+                self._mapping[key] = wrapper
 
         # Restoring the heap invariant.
         push_down = self._push_down
@@ -287,7 +294,7 @@ class HeapDict(MutableMapping, Generic[K, V]):
         return len(self._heap)
 
     def __iter__(self) -> Iterator[K]:
-        """Return keys iterator in the insertion order."""
+        """Return keys iterator."""
         return iter(self._mapping)
 
     def clear(self) -> None:
@@ -298,8 +305,11 @@ class HeapDict(MutableMapping, Generic[K, V]):
     def copy(self) -> "HeapDict[K, V]":
         """Return a shallow copy of dict."""
         heapdict = type(self)()
-        heapdict._heap = self._heap.copy()
-        heapdict._mapping = self._mapping.copy()
+
+        for wrapper in self._heap:
+            wrapper_copy = wrapper.copy()
+            heapdict._heap.append(wrapper_copy)
+            heapdict._mapping[cast(K, wrapper_copy[1])] = wrapper_copy
 
         return heapdict
 
@@ -311,4 +321,6 @@ class HeapDict(MutableMapping, Generic[K, V]):
         """Return repr(self)."""
         if not self:
             return f"{type(self).__name__}()"
-        return f"{type(self).__name__}({self._heap})"
+
+        items_str = "{" + ", ".join(f"{k!r}: {v!r}" for v, k, _ in self._heap) + "}"
+        return f"{type(self).__name__}({items_str})"
