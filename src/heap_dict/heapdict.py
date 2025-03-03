@@ -8,7 +8,7 @@ V = TypeVar("V")  # Type variable for values
 
 class HeapDict(MutableMapping, Generic[K, V]):
     @classmethod
-    def from_iterable(cls, iterable: Iterable[tuple[K, V]]) -> "HeapDict":
+    def from_iterable(cls, iterable: Iterable[tuple[K, V]]) -> "HeapDict[K, V]":
         res = cls()
 
         res.heap = [[value, key, i] for i, (key, value) in enumerate(iterable)]
