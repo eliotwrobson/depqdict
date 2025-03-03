@@ -242,7 +242,7 @@ class HeapDict(MutableMapping, Generic[K, V]):
         else:
             wrapper = [priority, key, len(self._heap)]
             self._heap.append(wrapper)
-            self._mapping[key] = wrapper
+            self._mapping[key] = cast(_InternalHeapItem, wrapper)
             self._push_up(len(self._heap) - 1)
 
     def __delitem__(self, key: K) -> None:
