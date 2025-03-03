@@ -11,5 +11,10 @@ dependencies = []
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
+
 [dependency-groups]
-test = ["ruff>=0.9.9", "pytest>=8.3.3", "mypy>=1.15.0"]
+dev = ["ruff>=0.9.9", "pytest>=8.3.3", "mypy>=1.15.0"]
+
+
+[tool.uv]
+default-groups = ["dev"]

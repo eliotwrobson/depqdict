@@ -89,7 +89,3 @@ class HeapDict(MutableMapping):
     def peekitem(self):
         """D.peekitem() -> (k, v), return the (key, value) pair with lowest value;\n but raise KeyError if D is empty."""
         return (self.heap[0][1], self.heap[0][0])
-
-
-del doc
-__all__ = ['heapdict']
