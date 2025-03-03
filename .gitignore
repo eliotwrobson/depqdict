@@ -11,3 +11,4 @@ build/
 *.egg-info
 setuptools-*.egg
 .venv
+**/__pycache__

@@ -28,6 +28,7 @@ jobs:
           uv run mypy --config-file pyproject.toml src tests
       - name: Test with pytest
         run: |
+          uv pip install -e .
           set -o pipefail
           uv run pytest --cache-clear --cov | tee pytest-coverage.txt
       - name: Comment coverage
