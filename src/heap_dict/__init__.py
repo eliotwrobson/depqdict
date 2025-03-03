@@ -1,1 +1,1 @@
-from .heapdict import HeapDict
+from .heapdict import HeapDict as HeapDict

@@ -1,4 +1,3 @@
-import heapq
 from collections.abc import MutableMapping
 from typing import Generic, Iterable, TypeVar
 
@@ -12,10 +11,9 @@ class HeapDict(MutableMapping, Generic[K, V]):
         res = cls()
 
         res.heap = [[value, key, i] for i, (key, value) in enumerate(iterable)]
-
-        heapq.heapify(res.heap)
-
         res.d = {wrapper[1]: wrapper for wrapper in res.heap}
+        for i in range(len(res) // 2, -1, -1):
+            res._min_heapify(i)
 
         return res
 

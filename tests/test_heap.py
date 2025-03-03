@@ -79,28 +79,28 @@ def test_values() -> None:
 
 
 # TODO fix this!! del loops forever
-# def test_del() -> None:
-#     h, pairs, _ = make_data()
-#     k, _ = pairs.pop(N // 2)
-#     del h[k]
-#     while pairs:
-#         v = h.popitem()
-#         v2 = pairs.pop(-1)
-#         assert v == v2
-#     assert len(h) == 0
+def test_del() -> None:
+    h, pairs, _ = make_data()
+    k, _ = pairs.pop(N // 2)
+    del h[k]
+    while pairs:
+        v = h.popitem()
+        v2 = pairs.pop(-1)
+        assert v == v2
+    assert len(h) == 0
 
 
-# def test_change() -> None:
-#     h, pairs, _ = make_data()
-#     k, _ = pairs[N // 2]
-#     h[k] = 0.5
-#     pairs[N // 2] = (k, 0.5)
-#     pairs.sort(key=lambda x: x[1], reverse=True)
-#     while pairs:
-#         v = h.popitem()
-#         v2 = pairs.pop(-1)
-#         assert v == v2
-#     assert len(h) == 0
+def test_change() -> None:
+    h, pairs, _ = make_data()
+    k, _ = pairs[N // 2]
+    h[k] = 0.5
+    pairs[N // 2] = (k, 0.5)
+    pairs.sort(key=lambda x: x[1], reverse=True)
+    while pairs:
+        v = h.popitem()
+        v2 = pairs.pop(-1)
+        assert v == v2
+    assert len(h) == 0
 
 
 def test_clear() -> None:
