@@ -1,11 +1,11 @@
 from __future__ import print_function
+
 import random
+
 from heap_dict import HeapDict
 
 N = 100
 
-
-import random
 
 class TestHeap:
     def check_invariants(self, h):
@@ -17,13 +17,14 @@ class TestHeap:
 
     def make_data(self):
         pairs = [(random.random(), random.random()) for _ in range(N)]
-        h = HeapDict()
+        h = HeapDict.from_iterable(pairs)
         d = {k: v for k, v in pairs}
         pairs.sort(key=lambda x: x[1], reverse=True)
         return h, pairs, d
 
     def test_popitem(self):
         h, pairs, _ = self.make_data()
+
         while pairs:
             v = h.popitem()
             v2 = pairs.pop(-1)

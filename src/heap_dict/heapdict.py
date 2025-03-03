@@ -1,7 +1,23 @@
+import heapq
 from collections.abc import MutableMapping
+from typing import Generic, Iterable, TypeVar
 
-class HeapDict(MutableMapping):
-    __marker = object()
+K = TypeVar("K")  # Type variable for keys
+V = TypeVar("V")  # Type variable for values
+
+
+class HeapDict(MutableMapping, Generic[K, V]):
+    @classmethod
+    def from_iterable(cls, iterable: Iterable[tuple[K, V]]) -> "HeapDict":
+        res = cls()
+
+        res.heap = [[value, key, i] for i, (key, value) in enumerate(iterable)]
+
+        heapq.heapify(res.heap)
+
+        res.d = {wrapper[1]: wrapper for wrapper in res.heap}
+
+        return res
 
     def __init__(self, *args, **kw):
         self.heap = []
@@ -18,7 +34,7 @@ class HeapDict(MutableMapping):
         wrapper = [value, key, len(self)]
         self.d[key] = wrapper
         self.heap.append(wrapper)
-        self._decrease_key(len(self.heap)-1)
+        self._decrease_key(len(self.heap) - 1)
 
     def _min_heapify(self, i):
         n = len(self.heap)
