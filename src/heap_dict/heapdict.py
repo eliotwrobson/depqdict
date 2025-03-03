@@ -8,6 +8,9 @@ HeapItem = tuple[K, V]
 _InternalHeapItem = list[V | K | int]
 
 
+# TODO add pushpop method https://docs.python.org/3/library/heapq.html#heapq.heappushpop
+
+
 class HeapDict(MutableMapping, Generic[K, V]):
     heap: list[_InternalHeapItem]
     h_dict: dict[K, list[K | V | int]]

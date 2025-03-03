@@ -8,6 +8,8 @@ N = 100
 SEED = hash("Tarjan")
 NUM_RANGE = 100_000_000
 
+# TODO add more test cases?
+
 
 def check_invariants(h) -> None:
     for i, e in enumerate(h.heap):
@@ -66,7 +68,6 @@ def test_peek() -> None:
 
 def test_iter() -> None:
     h, _, d = make_data()
-    # TODO make it possible to traverse these in order
     assert set(h) == set(d.keys())
 
 
@@ -80,7 +81,6 @@ def test_values() -> None:
     assert set(d.values()) == set(h.values())
 
 
-# TODO fix this!! del loops forever
 def test_del() -> None:
     h, pairs, _ = make_data()
     k, _ = pairs.pop(N // 2)
