@@ -1,0 +1,34 @@
+name: Test and Verify Python Grading and Utility Code
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Check lockfile
+        run: uv lock --check
+      - name: Lint with ruff
+        run: |
+          # Fail if codebase contains any of these issues
+          uv run ruff check .
+          uv run ruff format --check .
+      - name: Static Typechecking with mypy
+        run: |
+          uv run mypy --config-file pyproject.toml src tests
+      - name: Test with pytest
+        run: |
+          set -o pipefail
+          uv run pytest --cache-clear --cov | tee pytest-coverage.txt
+      - name: Comment coverage
+        uses: coroo/pytest-coverage-commentator@v1.0.2

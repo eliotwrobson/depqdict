@@ -1,9 +1,5 @@
 from collections.abc import MutableMapping
 
-
-
-
-
 class HeapDict(MutableMapping):
     __marker = object()
 
@@ -12,12 +8,10 @@ class HeapDict(MutableMapping):
         self.d = {}
         self.update(*args, **kw)
 
-    @doc(dict.clear)
     def clear(self):
         del self.heap[:]
         self.d.clear()
 
-    @doc(dict.__setitem__)
     def __setitem__(self, key, value):
         if key in self.d:
             self.pop(key)
@@ -62,7 +56,6 @@ class HeapDict(MutableMapping):
         h[i][2] = i
         h[j][2] = j
 
-    @doc(dict.__delitem__)
     def __delitem__(self, key):
         wrapper = self.d[key]
         while wrapper[2]:
@@ -72,11 +65,9 @@ class HeapDict(MutableMapping):
             self._swap(wrapper[2], parent[2])
         self.popitem()
 
-    @doc(dict.__getitem__)
     def __getitem__(self, key):
         return self.d[key][0]
 
-    @doc(dict.__iter__)
     def __iter__(self):
         return iter(self.d)
 
@@ -92,7 +83,6 @@ class HeapDict(MutableMapping):
         del self.d[wrapper[1]]
         return wrapper[1], wrapper[0]
 
-    @doc(dict.__len__)
     def __len__(self):
         return len(self.d)
 
