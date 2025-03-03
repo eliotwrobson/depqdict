@@ -9,6 +9,7 @@ _InternalHeapItem = list[V | K | int]
 
 
 # TODO add pushpop method https://docs.python.org/3/library/heapq.html#heapq.heappushpop
+# TODO add double ended priority queue features https://github.com/nanouasyn/heapdict
 
 
 class HeapDict(MutableMapping, Generic[K, V]):
