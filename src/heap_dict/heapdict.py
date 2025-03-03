@@ -1,20 +1,10 @@
-try:
-    from collections.abc import MutableMapping
-except ImportError:
-    from collections import MutableMapping
+from collections.abc import MutableMapping
 
 
-def doc(s):
-    if hasattr(s, '__call__'):
-        s = s.__doc__
-
-    def f(g):
-        g.__doc__ = s
-        return g
-    return f
 
 
-class heapdict(MutableMapping):
+
+class HeapDict(MutableMapping):
     __marker = object()
 
     def __init__(self, *args, **kw):

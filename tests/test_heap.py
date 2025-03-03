@@ -1,15 +1,11 @@
-#!/usr/bin/python
 from __future__ import print_function
 import random
 import sys
 import unittest
-from heapdict import heapdict
-try:
-    # Python 3
-    import test.support as test_support
-except ImportError:
-    # Python 2
-    import test.test_support as test_support
+from heap_dict import HeapDict
+
+# Python 3
+import test.support as test_support
 
 N = 100
 
