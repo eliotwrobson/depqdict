@@ -12,11 +12,11 @@ NUM_RANGE = 100_000_000
 
 
 def check_invariants(h) -> None:
-    for i, e in enumerate(h.heap):
+    for i, e in enumerate(h._heap):
         assert e[2] == i
-    for i in range(1, len(h.heap)):
+    for i in range(1, len(h._heap)):
         parent = (i - 1) >> 1
-        assert h.heap[parent][0] <= h.heap[i][0]
+        assert h._heap[parent][0] <= h._heap[i][0]
 
 
 def make_data() -> tuple[
@@ -40,7 +40,7 @@ def test_popitem() -> None:
     h, pairs, _ = make_data()
 
     while pairs:
-        v = h.popitem()
+        v = h.pop_min_item()
         v2 = pairs.pop(-1)
         assert v == v2
     assert len(h) == 0
@@ -51,7 +51,7 @@ def test_popitem_ties() -> None:
     for i in range(N):
         h[i] = 0
     for _ in range(N):
-        _, v = h.popitem()
+        _, v = h.pop_min_item()
         assert v == 0
         check_invariants(h)
 
@@ -59,8 +59,8 @@ def test_popitem_ties() -> None:
 def test_peek() -> None:
     h, pairs, _ = make_data()
     while pairs:
-        v = h.peekitem()[0]
-        h.popitem()
+        v = h.min_item()[0]
+        h.pop_min_item()
         v2 = pairs.pop(-1)
         assert v == v2[0]
     assert len(h) == 0
@@ -86,7 +86,7 @@ def test_del() -> None:
     k, _ = pairs.pop(N // 2)
     del h[k]
     while pairs:
-        v = h.popitem()
+        v = h.pop_min_item()
         v2 = pairs.pop(-1)
         assert v == v2
     assert len(h) == 0
@@ -99,7 +99,7 @@ def test_change() -> None:
     pairs[N // 2] = (k, 0.5)
     pairs.sort(key=lambda x: x[1], reverse=True)
     while pairs:
-        v = h.popitem()
+        v = h.pop_min_item()
         v2 = pairs.pop(-1)
         assert v == v2
     assert len(h) == 0

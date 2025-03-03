@@ -12,3 +12,4 @@ build/
 setuptools-*.egg
 .venv
 **/__pycache__
+.coverage
