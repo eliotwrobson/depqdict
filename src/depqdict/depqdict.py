@@ -46,10 +46,6 @@ class DepqDict(MutableMapping, Generic[K, V]):
         (key, priority) or {key: priority} mapping to initialize the priority
         queue.
 
-        Other optional keyword arguments will be added in a queue as pairs:
-        their names will be interpreted as keys, and their values will be
-        interpreted as priorities.
-
         If there are several pairs with the same keys, only the last one will
         be included in the dictionary.
 

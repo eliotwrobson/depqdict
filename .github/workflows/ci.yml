@@ -1,5 +1,3 @@
-name: Test and Verify Python Grading and Utility Code
-
 on:
   push:
     branches:
