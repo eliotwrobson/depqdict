@@ -410,8 +410,8 @@ def test_clear() -> None:
 def test_repr() -> None:
     heapdict: DepqDict = DepqDict()
 
-    assert repr(heapdict) == "HeapDict()"
+    assert repr(heapdict) == "DepqDict()"
 
     heapdict = DepqDict({"a": 1, "b": 2, "c": 3})
 
-    assert repr(heapdict) == "HeapDict({'a': 1, 'b': 2, 'c': 3})"
+    assert repr(heapdict) == "DepqDict({'a': 1, 'b': 2, 'c': 3})"
