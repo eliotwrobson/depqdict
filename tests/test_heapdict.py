@@ -147,33 +147,6 @@ def test_copy(copy_func) -> None:
     assert original["a"] != 100
 
 
-# def test_empty_behavior() -> None:
-#     heapdict = HeapDict()
-
-#     assert not heapdict
-#     assert len(heapdict) == 0
-#     assert dict(heapdict) == {}
-
-#     with pytest.raises(ValueError):
-#         _ = heapdict.min_item()
-#     assert heapdict.min_item(default=42) == 42
-
-#     with pytest.raises(ValueError):
-#         _ = heapdict.pop_min_item()
-#     assert heapdict.pop_min_item(default=42) == 42
-
-#     with pytest.raises(ValueError):
-#         _ = heapdict.max_item()
-#     assert heapdict.max_item(default=42) == 42
-
-#     with pytest.raises(ValueError):
-#         _ = heapdict.pop_max_item()
-#     assert heapdict.pop_max_item(default=42) == 42
-
-#     with pytest.raises(ValueError):
-#         _ = heapdict.popitem()
-
-
 @given(dictionary=st.dictionaries(st.integers(), st.integers(), min_size=1))
 def test_pop_min(dictionary: dict[int, int]) -> None:
     heapdict = HeapDict(dictionary)

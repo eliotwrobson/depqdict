@@ -40,3 +40,12 @@ line-length = 120
 # Pylint - PLC, PLE, PLW
 # isort - I
 select = ["E", "F", "W", "A", "PLC", "PLE", "PLW", "I"]
+
+[tool.mypy]
+python_version = "3.10"
+
+[tool.pytest.ini_options]
+required_plugins = ["pytest-cov"]
+
+[tool.coverage.run]
+include = ["src/heap_dict/heapdict.py"]
