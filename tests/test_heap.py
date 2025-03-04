@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 import random
 
 from heap_dict import HeapDict
@@ -13,10 +11,10 @@ NUM_RANGE = 100_000_000
 
 def check_invariants(h) -> None:
     for i, e in enumerate(h._heap):
-        assert e[2] == i
+        assert e.index == i
     for i in range(1, len(h._heap)):
         parent = (i - 1) >> 1
-        assert h._heap[parent][0] <= h._heap[i][0]
+        assert h._heap[parent].index <= h._heap[i].index
 
 
 def make_data() -> tuple[

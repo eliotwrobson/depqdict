@@ -14,3 +14,6 @@ setuptools-*.egg
 **/__pycache__
 .coverage
 .hypothesis
+
+# Convenient for development
+playground.py

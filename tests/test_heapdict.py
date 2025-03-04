@@ -18,22 +18,22 @@ def check_heapdict_invariants(heapdict: HeapDict) -> None:
     heap = heapdict._heap
 
     assert len(heapdict) == len(mapping) == len(heap)
-    assert all(wrapper[1] == key for key, wrapper in mapping.items())
-    assert all(wrapper[2] == i for i, wrapper in enumerate(heap))
+    assert all(wrapper.key == key for key, wrapper in mapping.items())
+    assert all(wrapper.index == i for i, wrapper in enumerate(heap))
 
     for i in range(1, len(heap)):
         parent = heapdict._get_parent(i)
         if heapdict._get_level(i) % 2 == 0:
-            assert heap[parent][0] >= heap[i][0]
+            assert heap[parent].priority >= heap[i].priority
         else:
-            assert heap[parent][0] <= heap[i][0]
+            assert heap[parent].priority <= heap[i].priority
 
     for i in range(3, len(heap)):
         grandparent = heapdict._get_grandparent(i)
         if heapdict._get_level(i) % 2 == 0:
-            assert heap[grandparent][0] <= heap[i][0]
+            assert heap[grandparent].priority <= heap[i].priority
         else:
-            assert heap[grandparent][0] >= heap[i][0]
+            assert heap[grandparent].priority >= heap[i].priority
 
 
 def assert_heapdict_is_empty(heapdict: HeapDict) -> None:
@@ -273,7 +273,7 @@ def test_pop_by_last_heap_index(dictionary: dict[int, int]) -> None:
     heapdict = HeapDict(dictionary)
 
     with heapdict_not_changes(heapdict):
-        last_key = heapdict._heap[-1][1]
+        last_key = heapdict._heap[-1].key
         hypothesis.note(f"{last_key = }")
 
         assert last_key in heapdict

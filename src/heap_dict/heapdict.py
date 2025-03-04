@@ -1,12 +1,22 @@
+import copy
 from collections.abc import Mapping, MutableMapping
+from dataclasses import dataclass
 from functools import partial
-from typing import Generic, Iterable, Iterator, TypeVar, cast
+from typing import Generic, Iterable, Iterator, TypeVar
 
 K = TypeVar("K")  # Type variable for keys
 V = TypeVar("V")  # Type variable for values
 
 HeapItem = tuple[K, V]
-_InternalHeapItem = list[V | K | int]
+
+
+@dataclass(slots=True, order=True)
+class _InternalHeapItem(Generic[K, V]):
+    """Internal representation of heap item."""
+
+    priority: V
+    key: K
+    index: int
 
 
 # TODO add pushpop method https://docs.python.org/3/library/heapq.html#heapq.heappushpop
@@ -24,8 +34,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
     for built-in dictionaries.
     """
 
-    _heap: list[_InternalHeapItem]
-    _mapping: dict[K, list[K | V | int]]
+    _heap: list[_InternalHeapItem[K, V]]
+    _mapping: dict[K, _InternalHeapItem[K, V]]
 
     __slots__ = ("_heap", "_mapping")
 
@@ -63,11 +73,11 @@ class HeapDict(MutableMapping, Generic[K, V]):
         elif not isinstance(iterable, Iterable):
             raise TypeError(f"{type(iterable).__qualname__!r} object is not iterable")
 
-        for i, (key, value) in enumerate(iterable_items):
+        for i, (key, priority) in enumerate(iterable_items):
             if key in self._mapping:
-                self._mapping[key][0] = value
+                self._mapping[key].priority = priority
             else:
-                wrapper = [value, key, i]
+                wrapper = _InternalHeapItem(priority, key, i)
                 self._heap.append(wrapper)
                 self._mapping[key] = wrapper
 
@@ -79,8 +89,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
     def _swap(self, i: int, j: int) -> None:
         h = self._heap
         h[i], h[j] = h[j], h[i]
-        h[i][2] = i
-        h[j][2] = j
+        h[i].index = i
+        h[j].index = j
 
     def _get_level(self, i: int) -> int:
         return (i + 1).bit_length() - 1
@@ -104,7 +114,7 @@ class HeapDict(MutableMapping, Generic[K, V]):
     def _get_selector(self, level: int):
         heap = self._heap
         selector = [min, max][level % 2]
-        return partial(selector, key=lambda i: heap[i][0])
+        return partial(selector, key=lambda i: heap[i].priority)
 
     def _push_down(self, i: int) -> None:
         with_children = self._with_children
@@ -155,8 +165,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
 
         Runtime complexity: `O(1)`.
         """
-        priority, key, _ = self._heap[0]
-        return key, priority
+        item = self._heap[0]
+        return item.key, item.priority
 
     def pop_min_item(self) -> HeapItem:
         """Remove and return (key, priority) pair with the lowest priority.
@@ -173,9 +183,9 @@ class HeapDict(MutableMapping, Generic[K, V]):
 
         Runtime complexity: `O(log(n))`.
         """
-        priority, key, _ = self._heap[0]
-        del self[cast(K, key)]
-        return key, priority
+        item = self._heap[0]
+        del self[item.key]
+        return item.key, item.priority
 
     def max_item(self) -> HeapItem:
         """Return (key, priority) pair with the highest priority.
@@ -190,8 +200,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
 
         Runtime complexity: `O(1)`.
         """
-        priority, key, _ = self._heap[self._get_max_index()]
-        return key, priority
+        item = self._heap[self._get_max_index()]
+        return item.key, item.priority
 
     def pop_max_item(self) -> HeapItem:
         """Remove and return (key, priority) pair with the highest priority.
@@ -208,9 +218,9 @@ class HeapDict(MutableMapping, Generic[K, V]):
 
         Runtime complexity: `O(log(n))`.
         """
-        priority, key, _ = self._heap[self._get_max_index()]
-        del self[cast(K, key)]
-        return key, priority
+        item = self._heap[self._get_max_index()]
+        del self[item.key]
+        return item.key, item.priority
 
     def __getitem__(self, key: K) -> V:
         """Return priority of *key*.
@@ -225,7 +235,7 @@ class HeapDict(MutableMapping, Generic[K, V]):
 
         RuntimeComplexity: `O(1)`.
         """
-        return cast(V, self._mapping[key][0])
+        return self._mapping[key].priority
 
     def __setitem__(self, key: K, priority: V) -> None:
         """Insert *key* with a specified *priority* if *key* is not in the
@@ -242,14 +252,14 @@ class HeapDict(MutableMapping, Generic[K, V]):
         """
 
         if key in self._mapping:
-            self._mapping[key][0] = priority
-            i = cast(int, self._mapping[key][2])
+            self._mapping[key].priority = priority
+            i = self._mapping[key].index
             self._push_up(i)
             self._push_down(i)
         else:
-            wrapper = [priority, key, len(self._heap)]
+            wrapper = _InternalHeapItem(priority, key, len(self._heap))
             self._heap.append(wrapper)
-            self._mapping[key] = cast(_InternalHeapItem, wrapper)
+            self._mapping[key] = wrapper
             self._push_up(len(self._heap) - 1)
 
     def __delitem__(self, key: K) -> None:
@@ -264,11 +274,11 @@ class HeapDict(MutableMapping, Generic[K, V]):
 
         RuntimeComplexity: `O(log(n))`.
         """
-        i = cast(int, self._mapping[key][2])
+        i = self._mapping[key].index
         self._mapping.pop(key)
         end_wrapper = self._heap.pop()
         if i < len(self._heap):
-            end_wrapper[2] = i
+            end_wrapper.index = i
             self._heap[i] = end_wrapper
             self._push_up(i)
             self._push_down(i)
@@ -307,9 +317,9 @@ class HeapDict(MutableMapping, Generic[K, V]):
         heapdict = type(self)()
 
         for wrapper in self._heap:
-            wrapper_copy = wrapper.copy()
+            wrapper_copy = copy.copy(wrapper)
             heapdict._heap.append(wrapper_copy)
-            heapdict._mapping[cast(K, wrapper_copy[1])] = wrapper_copy
+            heapdict._mapping[wrapper_copy.key] = wrapper_copy
 
         return heapdict
 
@@ -322,5 +332,7 @@ class HeapDict(MutableMapping, Generic[K, V]):
         if not self:
             return f"{type(self).__name__}()"
 
-        items_str = "{" + ", ".join(f"{k!r}: {v!r}" for v, k, _ in self._heap) + "}"
+        items_str = (
+            "{" + ", ".join(f"{v.key!r}: {v.priority!r}" for v in self._heap) + "}"
+        )
         return f"{type(self).__name__}({items_str})"
