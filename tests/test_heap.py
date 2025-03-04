@@ -1,12 +1,10 @@
+import heapq
 import random
 
 from heap_dict import HeapDict
 
-N = 100
 SEED = hash("Tarjan")
 NUM_RANGE = 100_000_000
-
-# TODO add more test cases?
 
 
 def check_invariants(h) -> None:
@@ -17,16 +15,16 @@ def check_invariants(h) -> None:
         assert h._heap[parent].index <= h._heap[i].index
 
 
-def make_data() -> tuple[
-    HeapDict[int, float], list[tuple[int, float]], dict[int, float]
-]:
+def make_data(
+    n: int,
+) -> tuple[HeapDict[int, float], list[tuple[int, float]], dict[int, float]]:
     random.seed(SEED)
     pairs: list[tuple[int, float]] = [
         (
             random.randint(0, NUM_RANGE),
             random.randint(0, NUM_RANGE),
         )
-        for _ in range(N)
+        for _ in range(n)
     ]
     h: HeapDict[int, float] = HeapDict(pairs)
     d = {k: v for k, v in pairs}
@@ -35,7 +33,7 @@ def make_data() -> tuple[
 
 
 def test_popitem() -> None:
-    h, pairs, _ = make_data()
+    h, pairs, _ = make_data(100)
 
     while pairs:
         v = h.pop_min_item()
@@ -46,16 +44,16 @@ def test_popitem() -> None:
 
 def test_popitem_ties() -> None:
     h: HeapDict[int, float] = HeapDict()
-    for i in range(N):
+    for i in range(100):
         h[i] = 0
-    for _ in range(N):
+    for _ in range(100):
         _, v = h.pop_min_item()
         assert v == 0
         check_invariants(h)
 
 
 def test_peek() -> None:
-    h, pairs, _ = make_data()
+    h, pairs, _ = make_data(100)
     while pairs:
         v = h.min_item()[0]
         h.pop_min_item()
@@ -65,23 +63,23 @@ def test_peek() -> None:
 
 
 def test_iter() -> None:
-    h, _, d = make_data()
+    h, _, d = make_data(100)
     assert set(h) == set(d.keys())
 
 
 def test_keys() -> None:
-    h, _, d = make_data()
+    h, _, d = make_data(100)
     assert sorted(h.keys()) == sorted(d.keys())
 
 
 def test_values() -> None:
-    h, _, d = make_data()
+    h, _, d = make_data(100)
     assert set(d.values()) == set(h.values())
 
 
 def test_del() -> None:
-    h, pairs, _ = make_data()
-    k, _ = pairs.pop(N // 2)
+    h, pairs, _ = make_data(100)
+    k, _ = pairs.pop(50)
     del h[k]
     while pairs:
         v = h.pop_min_item()
@@ -91,10 +89,10 @@ def test_del() -> None:
 
 
 def test_change() -> None:
-    h, pairs, _ = make_data()
-    k, _ = pairs[N // 2]
+    h, pairs, _ = make_data(100)
+    k, _ = pairs[50]
     h[k] = 0.5
-    pairs[N // 2] = (k, 0.5)
+    pairs[50] = (k, 0.5)
     pairs.sort(key=lambda x: x[1], reverse=True)
     while pairs:
         v = h.pop_min_item()
@@ -104,6 +102,56 @@ def test_change() -> None:
 
 
 def test_clear() -> None:
-    h, _, _ = make_data()
+    h, _, _ = make_data(100)
     h.clear()
     assert len(h) == 0
+
+
+def test_max_k_items() -> None:
+    n = 10_000
+    k = 3
+    _, d, _ = make_data(n)
+
+    new_heap = HeapDict()
+
+    for key, value in d:
+        if len(new_heap) < k:
+            new_heap[key] = value
+        else:
+            thing = new_heap.push_pop_min_item(key, value)
+            assert thing[1] <= new_heap.min_item()[1]
+
+    expected_result = heapq.nlargest(k, d, key=lambda x: x[1])
+    assert len(new_heap) == len(expected_result)
+
+    res = []
+    while new_heap:
+        res.append(new_heap.pop_max_item())
+
+    assert res == expected_result
+    assert len(new_heap) == 0
+
+
+def test_min_k_items() -> None:
+    n = 10_000
+    k = 3
+    _, d, _ = make_data(n)
+
+    new_heap = HeapDict()
+
+    for key, value in d:
+        if len(new_heap) < k:
+            new_heap[key] = value
+        else:
+            thing = new_heap.push_pop_max_item(key, value)
+            assert thing[1] >= new_heap.max_item()[1]
+
+    expected_result = heapq.nsmallest(k, d, key=lambda x: x[1])
+    assert len(new_heap) == len(expected_result)
+
+    res = []
+    while new_heap:
+        res.append(new_heap.pop_min_item())
+
+    assert res == expected_result
+    assert len(new_heap) == 0
