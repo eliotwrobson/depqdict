@@ -39,9 +39,7 @@ class HeapDict(MutableMapping, Generic[K, V]):
 
     __slots__ = ("_heap", "_mapping")
 
-    def __init__(
-        self, iterable: None | Iterable[HeapItem[K, V]] | Mapping[K, V] = None
-    ) -> None:
+    def __init__(self, iterable: None | Iterable[HeapItem[K, V]] | Mapping[K, V] = None) -> None:
         """Initialize priority queue instance.
 
         Optional *iterable* argument provides an initial iterable of pairs
@@ -254,9 +252,7 @@ class HeapDict(MutableMapping, Generic[K, V]):
         res = self._push_pop(max_idx, _InternalHeapItem(priority, key, max_idx))
         return res.key, res.priority
 
-    def _push_pop(
-        self, existing_idx: int, new_item: None | _InternalHeapItem[K, V]
-    ) -> _InternalHeapItem[K, V]:
+    def _push_pop(self, existing_idx: int, new_item: None | _InternalHeapItem[K, V]) -> _InternalHeapItem[K, V]:
         old_item = self._heap[existing_idx]
         self._mapping.pop(old_item.key)
 
@@ -387,7 +383,5 @@ class HeapDict(MutableMapping, Generic[K, V]):
         if not self:
             return f"{type(self).__name__}()"
 
-        items_str = (
-            "{" + ", ".join(f"{v.key!r}: {v.priority!r}" for v in self._heap) + "}"
-        )
+        items_str = "{" + ", ".join(f"{v.key!r}: {v.priority!r}" for v in self._heap) + "}"
         return f"{type(self).__name__}({items_str})"
