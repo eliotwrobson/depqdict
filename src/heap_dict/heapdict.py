@@ -185,7 +185,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
         return item.key, item.priority
 
     def push_pop_min_item(self, key: K, priority: V) -> HeapItem[K, V]:
-        """Push item into the heap and return the smallest item.
+        """Push item into the heap and return the smallest item. Faster than
+        push and then pop_min_item.
 
         >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
         >>> heapdict.push_pop_min_item(('d', 3))
@@ -236,7 +237,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
 
     def push_pop_max_item(self, key: K, priority: V) -> HeapItem[K, V]:
         """
-        Push item into the heap and return the largest item.
+        Push item into the heap and return the largest item. Faster than
+        push and then pop_max_item.
 
         >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
         >>> heapdict.push_pop_max_item(('d', 3))
