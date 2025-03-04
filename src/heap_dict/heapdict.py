@@ -9,6 +9,9 @@ V = TypeVar("V")  # Type variable for values
 
 HeapItem = tuple[K, V]
 
+# Based on heapdict by Evgeniy Selezniov, see
+# https://github.com/nanouasyn/heapdict/blob/main/heapdict.py
+
 
 @dataclass(slots=True, order=True)
 class _InternalHeapItem(Generic[K, V]):
@@ -17,10 +20,6 @@ class _InternalHeapItem(Generic[K, V]):
     priority: V
     key: K
     index: int
-
-
-# TODO add pushpop method https://docs.python.org/3/library/heapq.html#heapq.heappushpop
-# TODO add double ended priority queue features https://github.com/nanouasyn/heapdict
 
 
 class HeapDict(MutableMapping, Generic[K, V]):
@@ -258,11 +257,9 @@ class HeapDict(MutableMapping, Generic[K, V]):
         self, existing_idx: int, new_item: None | _InternalHeapItem[K, V]
     ) -> _InternalHeapItem[K, V]:
         old_item = self._heap[existing_idx]
-
-        assert old_item.index == existing_idx
+        self._mapping.pop(old_item.key)
 
         if new_item is None:
-            self._mapping.pop(old_item.key)
             if existing_idx == len(self._heap) - 1:
                 return self._heap.pop()
 
@@ -270,9 +267,6 @@ class HeapDict(MutableMapping, Generic[K, V]):
             item_to_add.index = existing_idx
         else:
             item_to_add = new_item
-            # TODO remove this assert!
-            assert existing_idx == new_item.index
-            self._mapping.pop(old_item.key)
             self._mapping[new_item.key] = item_to_add
 
         self._heap[existing_idx] = item_to_add
