@@ -115,6 +115,8 @@ def test_max_k_items() -> None:
     k = 100
     _, d, _ = make_data(n)
 
+    random.shuffle(d)
+
     new_heap: HeapDict[int, float] = HeapDict()
 
     for key, value in d:
@@ -139,6 +141,8 @@ def test_min_k_items() -> None:
     n = 10_000
     k = 100
     _, d, _ = make_data(n)
+
+    random.shuffle(d)
 
     new_heap: HeapDict[int, float] = HeapDict()
 
