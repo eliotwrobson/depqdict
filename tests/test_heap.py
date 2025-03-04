@@ -1,3 +1,6 @@
+# Based on tests from heapdict by Daniel Stutzbach
+# https://github.com/DanielStutzbach/heapdict/blob/master/test_heap.py
+
 import heapq
 import random
 
