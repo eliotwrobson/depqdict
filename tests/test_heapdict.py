@@ -1,3 +1,4 @@
+# Tests based on https://github.com/nanouasyn/heapdict/blob/main/test/test_heapdict.py
 import copy
 import operator
 from collections import OrderedDict
@@ -10,8 +11,6 @@ from hypothesis import strategies as st
 
 from depqdict import DepqDict
 from tests.utils import assert_heapdict_is_empty, check_heapdict_invariants
-
-# Tests from https://github.com/nanouasyn/heapdict/blob/main/test/test_heapdict.py
 
 
 @contextmanager
