@@ -1,18 +1,11 @@
 import copy
-from abc import ABCMeta, abstractmethod
 from collections.abc import Mapping, MutableMapping
 from dataclasses import dataclass
 from functools import partial
 from typing import Callable, Generic, Iterable, Iterator, TypeVar
 
-
-class Comparable(metaclass=ABCMeta):
-    @abstractmethod
-    def __lt__(self, other: "Comparable") -> bool: ...
-
-
 K = TypeVar("K")  # Type variable for keys
-V = TypeVar("V", bound=Comparable)  # Type variable for values
+V = TypeVar("V")  # Type variable for values
 
 HeapItem = tuple[K, V]
 
@@ -203,7 +196,7 @@ class HeapDict(MutableMapping, Generic[K, V]):
         HeapDict({'c': 7, 'd': 3, 'a': 10})
         """
 
-        if not self._heap or (self._heap and priority < self._heap[0].priority):
+        if not self._heap or (self._heap and priority < self._heap[0].priority):  # type: ignore[operator]
             return key, priority
 
         res = self._push_pop(0, _InternalHeapItem(priority, key, 0))
@@ -255,7 +248,7 @@ class HeapDict(MutableMapping, Generic[K, V]):
         """
 
         max_idx = self._get_max_index()
-        if not self._heap or (self._heap and priority > self._heap[max_idx].priority):
+        if not self._heap or (self._heap and priority > self._heap[max_idx].priority):  # type: ignore[operator]
             return key, priority
 
         res = self._push_pop(max_idx, _InternalHeapItem(priority, key, max_idx))

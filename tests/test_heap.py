@@ -109,10 +109,10 @@ def test_clear() -> None:
 
 def test_max_k_items() -> None:
     n = 10_000
-    k = 3
+    k = 100
     _, d, _ = make_data(n)
 
-    new_heap = HeapDict()
+    new_heap: HeapDict[int, float] = HeapDict()
 
     for key, value in d:
         if len(new_heap) < k:
@@ -134,10 +134,10 @@ def test_max_k_items() -> None:
 
 def test_min_k_items() -> None:
     n = 10_000
-    k = 3
+    k = 100
     _, d, _ = make_data(n)
 
-    new_heap = HeapDict()
+    new_heap: HeapDict[int, float] = HeapDict()
 
     for key, value in d:
         if len(new_heap) < k:
