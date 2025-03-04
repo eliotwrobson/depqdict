@@ -1,7 +1,7 @@
 [project]
 name = "heap-dict"
 version = "0.1.0"
-description = "Add your description here"
+description = "A double ended priority queue implemented with a min-max-heap"
 readme = "README.md"
 authors = [{ name = "Eliot Robson", email = "eliot.robson24@gmail.com" }]
 requires-python = ">=3.10"

@@ -5,17 +5,10 @@ import heapq
 import random
 
 from heap_dict import HeapDict
+from tests.utils import assert_heapdict_is_empty, check_heapdict_invariants
 
 SEED = hash("Tarjan")
 NUM_RANGE = 100_000_000
-
-
-def check_invariants(h) -> None:
-    for i, e in enumerate(h._heap):
-        assert e.index == i
-    for i in range(1, len(h._heap)):
-        parent = (i - 1) >> 1
-        assert h._heap[parent].index <= h._heap[i].index
 
 
 def make_data(
@@ -42,7 +35,7 @@ def test_popitem() -> None:
         v = h.pop_min_item()
         v2 = pairs.pop(-1)
         assert v == v2
-    assert len(h) == 0
+    assert_heapdict_is_empty(h)
 
 
 def test_popitem_ties() -> None:
@@ -52,7 +45,7 @@ def test_popitem_ties() -> None:
     for _ in range(100):
         _, v = h.pop_min_item()
         assert v == 0
-        check_invariants(h)
+        check_heapdict_invariants(h)
 
 
 def test_peek() -> None:
@@ -62,7 +55,7 @@ def test_peek() -> None:
         h.pop_min_item()
         v2 = pairs.pop(-1)
         assert v == v2[0]
-    assert len(h) == 0
+    assert_heapdict_is_empty(h)
 
 
 def test_iter() -> None:
@@ -88,7 +81,7 @@ def test_del() -> None:
         v = h.pop_min_item()
         v2 = pairs.pop(-1)
         assert v == v2
-    assert len(h) == 0
+    assert_heapdict_is_empty(h)
 
 
 def test_change() -> None:
@@ -101,13 +94,13 @@ def test_change() -> None:
         v = h.pop_min_item()
         v2 = pairs.pop(-1)
         assert v == v2
-    assert len(h) == 0
+    assert_heapdict_is_empty(h)
 
 
 def test_clear() -> None:
     h, _, _ = make_data(100)
     h.clear()
-    assert len(h) == 0
+    assert_heapdict_is_empty(h)
 
 
 def test_max_k_items() -> None:
@@ -126,6 +119,8 @@ def test_max_k_items() -> None:
             thing = new_heap.push_pop_min_item(key, value)
             assert thing[1] <= new_heap.min_item()[1]
 
+        check_heapdict_invariants(new_heap)
+
     expected_result = heapq.nlargest(k, d, key=lambda x: x[1])
     assert len(new_heap) == len(expected_result)
 
@@ -134,7 +129,7 @@ def test_max_k_items() -> None:
         res.append(new_heap.pop_max_item())
 
     assert res == expected_result
-    assert len(new_heap) == 0
+    assert_heapdict_is_empty(new_heap)
 
 
 def test_min_k_items() -> None:
@@ -153,6 +148,8 @@ def test_min_k_items() -> None:
             thing = new_heap.push_pop_max_item(key, value)
             assert thing[1] >= new_heap.max_item()[1]
 
+        check_heapdict_invariants(new_heap)
+
     expected_result = heapq.nsmallest(k, d, key=lambda x: x[1])
     assert len(new_heap) == len(expected_result)
 
@@ -161,4 +158,4 @@ def test_min_k_items() -> None:
         res.append(new_heap.pop_min_item())
 
     assert res == expected_result
-    assert len(new_heap) == 0
+    assert_heapdict_is_empty(new_heap)
