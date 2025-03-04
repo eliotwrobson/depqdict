@@ -24,7 +24,8 @@ class _InternalHeapItem(Generic[K, V]):
 
 
 class HeapDict(MutableMapping, Generic[K, V]):
-    """Priority queue that supports retrieving and extraction keys with the
+    """
+    Priority queue that supports retrieving and extraction keys with the
     lowest/highest priority and changing priorities for arbitrary keys.
 
     Implements the ``dict`` interface, the keys of which are priority queue
@@ -40,7 +41,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
     __slots__ = ("_heap", "_mapping")
 
     def __init__(self, iterable: None | Iterable[HeapItem[K, V]] | Mapping[K, V] = None) -> None:
-        """Initialize priority queue instance.
+        """
+        Initialize priority queue instance.
 
         Optional *iterable* argument provides an initial iterable of pairs
         (key, priority) or {key: priority} mapping to initialize the priority
@@ -151,7 +153,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
         return self._get_selector(1)(1, 2) if length > 2 else length - 1
 
     def min_item(self) -> HeapItem[K, V]:
-        """Return (key, priority) pair with the lowest priority.
+        """
+        Return (key, priority) pair with the lowest priority.
 
         >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
         >>> heapdict.min_item()
@@ -167,7 +170,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
         return item.key, item.priority
 
     def pop_min_item(self) -> HeapItem[K, V]:
-        """Remove and return (key, priority) pair with the lowest priority.
+        """
+        Remove and return (key, priority) pair with the lowest priority.
 
         >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
         >>> heapdict.pop_min_item()
@@ -185,7 +189,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
         return item.key, item.priority
 
     def push_pop_min_item(self, key: K, priority: V) -> HeapItem[K, V]:
-        """Push item into the heap and return the smallest item. Faster than
+        """
+        Push item into the heap and return the smallest item. Faster than
         push and then pop_min_item.
 
         >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
@@ -202,7 +207,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
         return res.key, res.priority
 
     def max_item(self) -> HeapItem[K, V]:
-        """Return (key, priority) pair with the highest priority.
+        """
+        Return (key, priority) pair with the highest priority.
 
         >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
         >>> heapdict.max_item()
@@ -218,7 +224,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
         return item.key, item.priority
 
     def pop_max_item(self) -> HeapItem[K, V]:
-        """Remove and return (key, priority) pair with the highest priority.
+        """
+        Remove and return (key, priority) pair with the highest priority.
 
         >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
         >>> heapdict.pop_max_item()
@@ -275,7 +282,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
         return old_item
 
     def __getitem__(self, key: K) -> V:
-        """Return priority of *key*.
+        """
+        Return priority of *key*.
 
         >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
         >>> heapdict['a']
@@ -290,7 +298,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
         return self._mapping[key].priority
 
     def __setitem__(self, key: K, priority: V) -> None:
-        """Insert *key* with a specified *priority* if *key* is not in the
+        """
+        Insert *key* with a specified *priority* if *key* is not in the
         dictionary, or change priority of existing *key* to *priority*
         otherwise.
 
@@ -316,7 +325,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
             self._push_up(wrapper.index)
 
     def __delitem__(self, key: K) -> None:
-        """Remove *key* from the dictionary.
+        """
+        Remove *key* from the dictionary.
 
         >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
         >>> del heapdict['b']
@@ -337,7 +347,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
             self._push_down(i)
 
     def popitem(self) -> HeapItem[K, V]:
-        """Remove and return a (key, priority) pair inserted last as a 2-tuple.
+        """
+        Remove and return a (key, priority) pair inserted last as a 2-tuple.
 
         Raises ``ValueError`` if dictionary is empty.
 
@@ -350,7 +361,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
         return key, priority
 
     def __len__(self) -> int:
-        """Return the number of keys.
+        """
+        Return the number of keys.
 
         Runtime complexity: `O(1)`
         """
