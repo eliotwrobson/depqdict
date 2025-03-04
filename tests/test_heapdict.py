@@ -8,14 +8,14 @@ import pytest
 from hypothesis import given
 from hypothesis import strategies as st
 
-from heap_dict import HeapDict
+from depqdict import DepqDict
 from tests.utils import assert_heapdict_is_empty, check_heapdict_invariants
 
 # Tests from https://github.com/nanouasyn/heapdict/blob/main/test/test_heapdict.py
 
 
 @contextmanager
-def heapdict_not_changes(heapdict: HeapDict):
+def heapdict_not_changes(heapdict: DepqDict):
     heapdict_copy = heapdict.copy()
     try:
         yield heapdict
@@ -43,15 +43,15 @@ def assert_args_are_equivalent_by_function(func, a, b) -> None:
 
 
 def test_create_empty() -> None:
-    assert_heapdict_is_empty(HeapDict())
+    assert_heapdict_is_empty(DepqDict())
 
 
 def test_create_from_incompatible() -> None:
     with pytest.raises(TypeError):
-        _ = HeapDict(42)  # type: ignore[arg-type]
+        _ = DepqDict(42)  # type: ignore[arg-type]
 
     with pytest.raises(TypeError):
-        _ = HeapDict([1, 2, 3])  # type: ignore[arg-type, list-item]
+        _ = DepqDict([1, 2, 3])  # type: ignore[arg-type, list-item]
 
 
 @given(pairs=st.lists(st.tuples(st.integers(), st.integers())))
@@ -63,7 +63,7 @@ def test_create_from_pairs(pairs: list[tuple[int, int]]) -> None:
             seen.add(a)
             pairs.append((a, b))
 
-    heapdict: HeapDict[int, int] = HeapDict(pairs)
+    heapdict: DepqDict[int, int] = DepqDict(pairs)
     check_heapdict_invariants(heapdict)
 
     expected = dict(pairs)
@@ -72,7 +72,7 @@ def test_create_from_pairs(pairs: list[tuple[int, int]]) -> None:
 
 @given(dictionary=st.dictionaries(st.integers(), st.integers()))
 def test_create_from_dict(dictionary: dict[int, int]) -> None:
-    heapdict = HeapDict(dictionary)
+    heapdict = DepqDict(dictionary)
     check_heapdict_invariants(heapdict)
 
     assert heapdict == dictionary
@@ -80,10 +80,10 @@ def test_create_from_dict(dictionary: dict[int, int]) -> None:
 
 @given(dictionary=st.dictionaries(st.integers(), st.integers()))
 def test_create_from_heapdict(dictionary: dict[int, int]) -> None:
-    another_heapdict: HeapDict = HeapDict(dictionary)
+    another_heapdict: DepqDict = DepqDict(dictionary)
     check_heapdict_invariants(another_heapdict)
 
-    heapdict: HeapDict = HeapDict(another_heapdict)
+    heapdict: DepqDict = DepqDict(another_heapdict)
     check_heapdict_invariants(heapdict)
 
     assert dict(heapdict) == dict(another_heapdict)
@@ -91,9 +91,9 @@ def test_create_from_heapdict(dictionary: dict[int, int]) -> None:
 
 @given(dictionary=st.dictionaries(st.integers(), st.integers()))
 def test_create_from_insertions(dictionary: dict[int, int]) -> None:
-    created = HeapDict(dictionary)
+    created = DepqDict(dictionary)
 
-    filled: HeapDict[int, int] = HeapDict()
+    filled: DepqDict[int, int] = DepqDict()
     for key, value in dictionary.items():
         filled[key] = value
     check_heapdict_invariants(filled)
@@ -111,7 +111,7 @@ def test_create_from_insertions(dictionary: dict[int, int]) -> None:
 
 @pytest.mark.parametrize("copy_func", [copy.copy, lambda x: x.copy()])
 def test_copy(copy_func) -> None:
-    original = HeapDict(zip("abcdef", [3, 3, 1, 6, 3, 4], strict=False))
+    original = DepqDict(zip("abcdef", [3, 3, 1, 6, 3, 4], strict=False))
 
     clone = copy_func(original)
     check_heapdict_invariants(original)
@@ -149,7 +149,7 @@ def test_copy(copy_func) -> None:
 
 @given(dictionary=st.dictionaries(st.integers(), st.integers(), min_size=1))
 def test_pop_min(dictionary: dict[int, int]) -> None:
-    heapdict = HeapDict(dictionary)
+    heapdict = DepqDict(dictionary)
 
     with heapdict_not_changes(heapdict):
         key, priority = item = heapdict.min_item()
@@ -170,7 +170,7 @@ def test_pop_min(dictionary: dict[int, int]) -> None:
 
 @given(dictionary=st.dictionaries(st.integers(), st.integers(), min_size=1))
 def test_pop_max(dictionary: dict[int, int]) -> None:
-    heapdict = HeapDict(dictionary)
+    heapdict = DepqDict(dictionary)
 
     with heapdict_not_changes(heapdict):
         key, priority = item = heapdict.max_item()
@@ -194,7 +194,7 @@ def test_pop_max(dictionary: dict[int, int]) -> None:
     random=st.randoms(),
 )
 def test_pop(dictionary: dict[int, int], random) -> None:
-    heapdict = HeapDict(dictionary)
+    heapdict = DepqDict(dictionary)
 
     key = random.choice(list(dictionary.items()))[0]
     hypothesis.note(f"{key = }")
@@ -216,7 +216,7 @@ def test_pop(dictionary: dict[int, int], random) -> None:
 
 @given(dictionary=st.dictionaries(st.integers(), st.integers(), min_size=1))
 def test_pop_by_last_heap_index(dictionary: dict[int, int]) -> None:
-    heapdict = HeapDict(dictionary)
+    heapdict = DepqDict(dictionary)
 
     with heapdict_not_changes(heapdict):
         last_key = heapdict._heap[-1].key
@@ -238,7 +238,7 @@ def test_pop_by_last_heap_index(dictionary: dict[int, int]) -> None:
 
 @given(dictionary=st.dictionaries(st.integers(), st.integers(), min_size=1))
 def test_popitem(dictionary: dict[int, int]) -> None:
-    heapdict = HeapDict(dictionary)
+    heapdict = DepqDict(dictionary)
 
     with heapdict_not_changes(heapdict):
         key = next(reversed(heapdict._mapping))
@@ -259,7 +259,7 @@ def test_popitem(dictionary: dict[int, int]) -> None:
 
 @given(alist=st.lists(st.integers()))
 def test_sorting_by_pop_min(alist: list[int]) -> None:
-    heapdict: HeapDict[int, int] = HeapDict(enumerate(alist))
+    heapdict: DepqDict[int, int] = DepqDict(enumerate(alist))
 
     sorted_by_heapdict = []
     while heapdict:
@@ -272,7 +272,7 @@ def test_sorting_by_pop_min(alist: list[int]) -> None:
 
 @given(alist=st.lists(st.integers()))
 def test_sorting_by_pop_max(alist: list[int]) -> None:
-    heapdict: HeapDict[int, int] = HeapDict(enumerate(alist))
+    heapdict: DepqDict[int, int] = DepqDict(enumerate(alist))
 
     sorted_by_heapdict = []
     while heapdict:
@@ -288,7 +288,7 @@ def test_sorting_by_random_extractions(alist: list[int], random) -> None:
     operations = random.choices(["pop_min", "pop_max"], k=len(alist))
     hypothesis.note(f"{operations = }")
 
-    heapdict: HeapDict[int, int] = HeapDict(enumerate(alist))
+    heapdict: DepqDict[int, int] = DepqDict(enumerate(alist))
 
     minimums, maximums = [], []
     for operation in operations:
@@ -321,7 +321,7 @@ def test_compare_with_builtin_dict_behavior(operations: list[tuple[str, int]]) -
         "pop": lambda key: lambda d: d.pop(key),
     }
 
-    heapdict: HeapDict = HeapDict()
+    heapdict: DepqDict = DepqDict()
     builtin_dict: dict = {}
 
     for operation in operations:
@@ -333,7 +333,7 @@ def test_compare_with_builtin_dict_behavior(operations: list[tuple[str, int]]) -
 
 
 def test_missing_key() -> None:
-    heapdict = HeapDict({"a": 5, "b": 10, "c": 12})
+    heapdict = DepqDict({"a": 5, "b": 10, "c": 12})
 
     with heapdict_not_changes(heapdict), pytest.raises(KeyError):
         _ = heapdict["x"]
@@ -352,15 +352,15 @@ def test_missing_key() -> None:
 
 
 def test_unhashable_key() -> None:
-    heapdict = HeapDict({"a": 5, "b": 10, "c": 12})
+    heapdict = DepqDict({"a": 5, "b": 10, "c": 12})
 
     with heapdict_not_changes(heapdict), pytest.raises(TypeError):
         heapdict[[]] = 7  # type: ignore[index]
 
 
 def test_pairs_order_does_not_matter_for_equality() -> None:
-    heapdict1 = HeapDict({"a": 1, "b": 2})
-    heapdict2 = HeapDict({"b": 2, "a": 1})
+    heapdict1 = DepqDict({"a": 1, "b": 2})
+    heapdict2 = DepqDict({"b": 2, "a": 1})
 
     assert heapdict1 == heapdict2
     assert dict(heapdict1) == dict(heapdict2)
@@ -370,7 +370,7 @@ def test_pairs_order_does_not_matter_for_equality() -> None:
 def test_equals_but_nonidentical_keys_behavior() -> None:
     # Insert pairs with equal but not identical keys.
     pairs = [((1,), 3), ((1,), 1), ((1,), 2)]
-    heapdict: HeapDict = HeapDict(pairs)
+    heapdict: DepqDict = DepqDict(pairs)
     heapdict[1,] = 4
     heapdict[1,] = 2
     heapdict[1,] = 5
@@ -387,12 +387,12 @@ def test_equals_but_nonidentical_keys_behavior() -> None:
 
 
 def test_preserves_insertion_order_on_update() -> None:
-    heapdict = HeapDict({"a": 1, "b": 5, "c": 10})
+    heapdict = DepqDict({"a": 1, "b": 5, "c": 10})
     heapdict["b"] = 20
 
     assert OrderedDict(heapdict) == OrderedDict({"a": 1, "b": 20, "c": 10})
 
-    heapdict = HeapDict({"a": 1, "b": 5, "c": 10})
+    heapdict = DepqDict({"a": 1, "b": 5, "c": 10})
     del heapdict["b"]
     heapdict["b"] = 20
 
@@ -400,7 +400,7 @@ def test_preserves_insertion_order_on_update() -> None:
 
 
 def test_clear() -> None:
-    heapdict: HeapDict = HeapDict([("a", 1), ("b", 2), ("c", 3), ("d", 2), ("c", 3)])
+    heapdict: DepqDict = DepqDict([("a", 1), ("b", 2), ("c", 3), ("d", 2), ("c", 3)])
 
     heapdict.clear()
 
@@ -408,10 +408,10 @@ def test_clear() -> None:
 
 
 def test_repr() -> None:
-    heapdict: HeapDict = HeapDict()
+    heapdict: DepqDict = DepqDict()
 
     assert repr(heapdict) == "HeapDict()"
 
-    heapdict = HeapDict({"a": 1, "b": 2, "c": 3})
+    heapdict = DepqDict({"a": 1, "b": 2, "c": 3})
 
     assert repr(heapdict) == "HeapDict({'a': 1, 'b': 2, 'c': 3})"

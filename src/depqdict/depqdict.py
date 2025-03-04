@@ -11,36 +11,34 @@ from typing import Generic, TypeVar
 K = TypeVar("K")  # Type variable for keys
 V = TypeVar("V")  # Type variable for values
 
-HeapItem = tuple[K, V]
+DepqItem = tuple[K, V]
 
 
 @dataclass(slots=True, order=True)
-class _InternalHeapItem(Generic[K, V]):
-    """Internal representation of heap item."""
+class _InternalDepqItem(Generic[K, V]):
+    """Internal representation of depq item."""
 
     priority: V
     key: K
     index: int
 
 
-class HeapDict(MutableMapping, Generic[K, V]):
+class DepqDict(MutableMapping, Generic[K, V]):
     """
     Priority queue that supports retrieving and extraction keys with the
     lowest/highest priority and changing priorities for arbitrary keys.
 
     Implements the ``dict`` interface, the keys of which are priority queue
     elements, and the values are priorities of these elements. All keys must be
-    hashable, and all values must be comparable to each other. The preservation
-    of the insertion order is guaranteed in the same way as it is guaranteed
-    for built-in dictionaries.
+    hashable, and all values must be comparable to each other.
     """
 
-    _heap: list[_InternalHeapItem[K, V]]
-    _mapping: dict[K, _InternalHeapItem[K, V]]
+    _heap: list[_InternalDepqItem[K, V]]
+    _mapping: dict[K, _InternalDepqItem[K, V]]
 
     __slots__ = ("_heap", "_mapping")
 
-    def __init__(self, iterable: None | Iterable[HeapItem[K, V]] | Mapping[K, V] = None) -> None:
+    def __init__(self, iterable: None | Iterable[DepqItem[K, V]] | Mapping[K, V] = None) -> None:
         """
         Initialize priority queue instance.
 
@@ -55,8 +53,8 @@ class HeapDict(MutableMapping, Generic[K, V]):
         If there are several pairs with the same keys, only the last one will
         be included in the dictionary.
 
-        >>> heapdict = HeapDict([('a', 1), ('b', 2), ('a', 3)], b=4, c=5)
-        HeapDict({'a': 3, 'b': 4, 'c': 5})
+        >>> depqdict = DepqDict([('a', 1), ('b', 2), ('a', 3)], b=4, c=5)
+        DepqDict({'a': 3, 'b': 4, 'c': 5})
 
         Runtime complexity: `O(n)`.
         """
@@ -67,9 +65,9 @@ class HeapDict(MutableMapping, Generic[K, V]):
         if iterable is None:
             return
         elif isinstance(iterable, Mapping):
-            iterable_items: Iterable[HeapItem[K, V]] = iterable.items()
+            iterable_items: Iterable[DepqItem[K, V]] = iterable.items()
         elif isinstance(iterable, Iterable):
-            iterable_items: Iterable[HeapItem[K, V]] = iterable  # type: ignore[no-redef]
+            iterable_items: Iterable[DepqItem[K, V]] = iterable  # type: ignore[no-redef]
         elif not isinstance(iterable, Iterable):
             raise TypeError(f"{type(iterable).__qualname__!r} object is not iterable")
 
@@ -77,7 +75,7 @@ class HeapDict(MutableMapping, Generic[K, V]):
             if key in self._mapping:
                 self._mapping[key].priority = priority
             else:
-                wrapper = _InternalHeapItem(priority, key, i)
+                wrapper = _InternalDepqItem(priority, key, i)
                 self._heap.append(wrapper)
                 self._mapping[key] = wrapper
 
@@ -152,66 +150,60 @@ class HeapDict(MutableMapping, Generic[K, V]):
         length = len(self._heap)
         return self._get_selector(1)(1, 2) if length > 2 else length - 1
 
-    def min_item(self) -> HeapItem[K, V]:
+    def min_item(self) -> DepqItem[K, V]:
         """
         Return (key, priority) pair with the lowest priority.
 
-        >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
-        >>> heapdict.min_item()
+        >>> depqdict = DepqDict({'a': 10, 'b': 5, 'c': 7})
+        >>> depqdict.min_item()
         ('b', 5)
-
-        The *default* keyword-only argument specifies an object to return if
-        the dict is empty. If the dict is empty but *default* is not specified,
-        a ``ValueError`` will be thrown.
 
         Runtime complexity: `O(1)`.
         """
         item = self._heap[0]
         return item.key, item.priority
 
-    def pop_min_item(self) -> HeapItem[K, V]:
+    def pop_min_item(self) -> DepqItem[K, V]:
         """
         Remove and return (key, priority) pair with the lowest priority.
 
-        >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
-        >>> heapdict.pop_min_item()
+        >>> depqdict = DepqDict({'a': 10, 'b': 5, 'c': 7})
+        >>> depqdict.pop_min_item()
         ('b', 5)
-        >>> heapdict
-        HeapDict({'a': 10, 'c': 7})
-
-        The *default* keyword-only argument specifies an object to return if
-        the dict is empty. If the dict is empty but *default* is not specified,
-        a ``ValueError`` will be thrown.
+        >>> depqdict
+        DepqDict({'a': 10, 'c': 7})
 
         Runtime complexity: `O(log(n))`.
         """
         item = self._push_pop(0, None)
         return item.key, item.priority
 
-    def push_pop_min_item(self, key: K, priority: V) -> HeapItem[K, V]:
+    def push_pop_min_item(self, key: K, priority: V) -> DepqItem[K, V]:
         """
         Push item into the heap and return the smallest item. Faster than
-        push and then pop_min_item.
+        using push and then pop_min_item.
 
-        >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
-        >>> heapdict.push_pop_min_item(('d', 3))
+        >>> depqdict = DepqDict({'a': 10, 'b': 5, 'c': 7})
+        >>> depqdict.push_pop_min_item(('d', 3))
         ('b', 5)
-        >>> heapdict
-        HeapDict({'c': 7, 'd': 3, 'a': 10})
+        >>> depqdict
+        DepqDict({'c': 7, 'd': 3, 'a': 10})
+
+        Runtime complexity: `O(log(n))`.
         """
 
         if not self._heap or (self._heap and priority < self._heap[0].priority):  # type: ignore[operator]
             return key, priority
 
-        res = self._push_pop(0, _InternalHeapItem(priority, key, 0))
+        res = self._push_pop(0, _InternalDepqItem(priority, key, 0))
         return res.key, res.priority
 
-    def max_item(self) -> HeapItem[K, V]:
+    def max_item(self) -> DepqItem[K, V]:
         """
         Return (key, priority) pair with the highest priority.
 
-        >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
-        >>> heapdict.max_item()
+        >>> depqdict = DepqDict({'a': 10, 'b': 5, 'c': 7})
+        >>> depqdict.max_item()
         ('a', 10)
 
         The *default* keyword-only argument specifies an object to return if
@@ -223,15 +215,15 @@ class HeapDict(MutableMapping, Generic[K, V]):
         item = self._heap[self._get_max_index()]
         return item.key, item.priority
 
-    def pop_max_item(self) -> HeapItem[K, V]:
+    def pop_max_item(self) -> DepqItem[K, V]:
         """
         Remove and return (key, priority) pair with the highest priority.
 
-        >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
-        >>> heapdict.pop_max_item()
+        >>> depqdict = DepqDict({'a': 10, 'b': 5, 'c': 7})
+        >>> depqdict.pop_max_item()
         ('a', 10)
-        >>> heapdict
-        HeapDict({'b': 5, 'c': 7})
+        >>> depqdict
+        DepqDict({'b': 5, 'c': 7})
 
         The *default* keyword-only argument specifies an object to return if
         the dict is empty. If the dict is empty but *default* is not specified,
@@ -242,26 +234,28 @@ class HeapDict(MutableMapping, Generic[K, V]):
         item = self._push_pop(self._get_max_index(), None)
         return item.key, item.priority
 
-    def push_pop_max_item(self, key: K, priority: V) -> HeapItem[K, V]:
+    def push_pop_max_item(self, key: K, priority: V) -> DepqItem[K, V]:
         """
         Push item into the heap and return the largest item. Faster than
         push and then pop_max_item.
 
-        >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
-        >>> heapdict.push_pop_max_item(('d', 3))
+        >>> depqdict = DepqDict({'a': 10, 'b': 5, 'c': 7})
+        >>> depqdict.push_pop_max_item(('d', 3))
         ('a', 10)
-        >>> heapdict
-        HeapDict({'c': 7, 'd': 3, 'b': 5})
+        >>> depqdict
+        DepqDict({'c': 7, 'd': 3, 'b': 5})
+
+        Runtime complexity: `O(log(n))`.
         """
 
         max_idx = self._get_max_index()
         if not self._heap or (self._heap and priority > self._heap[max_idx].priority):  # type: ignore[operator]
             return key, priority
 
-        res = self._push_pop(max_idx, _InternalHeapItem(priority, key, max_idx))
+        res = self._push_pop(max_idx, _InternalDepqItem(priority, key, max_idx))
         return res.key, res.priority
 
-    def _push_pop(self, existing_idx: int, new_item: None | _InternalHeapItem[K, V]) -> _InternalHeapItem[K, V]:
+    def _push_pop(self, existing_idx: int, new_item: None | _InternalDepqItem[K, V]) -> _InternalDepqItem[K, V]:
         old_item = self._heap[existing_idx]
         self._mapping.pop(old_item.key)
 
@@ -285,10 +279,10 @@ class HeapDict(MutableMapping, Generic[K, V]):
         """
         Return priority of *key*.
 
-        >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
-        >>> heapdict['a']
+        >>> depqdict = DepqDict({'a': 10, 'b': 5, 'c': 7})
+        >>> depqdict['a']
         10
-        >>> heapdict['b']
+        >>> depqdict['b']
         5
 
         Raises ``KeyError`` if *key* is not in the dictionary.
@@ -303,11 +297,11 @@ class HeapDict(MutableMapping, Generic[K, V]):
         dictionary, or change priority of existing *key* to *priority*
         otherwise.
 
-        >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
-        >>> heapdict['d'] = 20
-        >>> heapdict['a'] = 0
-        >>> heapdict
-        HeapDict({'a': 0, 'b': 5, 'c': 7, 'd': 20})
+        >>> depqdict = DepqDict({'a': 10, 'b': 5, 'c': 7})
+        >>> depqdict['d'] = 20
+        >>> depqdict['a'] = 0
+        >>> depqdict
+        DepqDict({'a': 0, 'b': 5, 'c': 7, 'd': 20})
 
         RuntimeComplexity: `O(log(n))`.
         """
@@ -319,7 +313,7 @@ class HeapDict(MutableMapping, Generic[K, V]):
             self._push_up(i)
             self._push_down(i)
         else:
-            wrapper = _InternalHeapItem(priority, key, len(self._heap))
+            wrapper = _InternalDepqItem(priority, key, len(self._heap))
             self._heap.append(wrapper)
             self._mapping[key] = wrapper
             self._push_up(wrapper.index)
@@ -328,10 +322,10 @@ class HeapDict(MutableMapping, Generic[K, V]):
         """
         Remove *key* from the dictionary.
 
-        >>> heapdict = HeapDict({'a': 10, 'b': 5, 'c': 7})
-        >>> del heapdict['b']
-        >>> heapdict
-        HeapDict({'a': 10, 'c': 7})
+        >>> depqdict = DepqDict({'a': 10, 'b': 5, 'c': 7})
+        >>> del depqdict['b']
+        >>> depqdict
+        DepqDict({'a': 10, 'c': 7})
 
         Raises ``KeyValue`` if *key* is not in the dictionary.
 
@@ -346,7 +340,7 @@ class HeapDict(MutableMapping, Generic[K, V]):
             self._push_up(i)
             self._push_down(i)
 
-    def popitem(self) -> HeapItem[K, V]:
+    def popitem(self) -> DepqItem[K, V]:
         """
         Remove and return a (key, priority) pair inserted last as a 2-tuple.
 
@@ -377,18 +371,18 @@ class HeapDict(MutableMapping, Generic[K, V]):
         self._heap.clear()
         self._mapping.clear()
 
-    def copy(self) -> "HeapDict[K, V]":
+    def copy(self) -> "DepqDict[K, V]":
         """Return a shallow copy of dict."""
-        heapdict = type(self)()
+        depqdict = type(self)()
 
         for wrapper in self._heap:
             wrapper_copy = copy.copy(wrapper)
-            heapdict._heap.append(wrapper_copy)
-            heapdict._mapping[wrapper_copy.key] = wrapper_copy
+            depqdict._heap.append(wrapper_copy)
+            depqdict._mapping[wrapper_copy.key] = wrapper_copy
 
-        return heapdict
+        return depqdict
 
-    def __copy__(self) -> "HeapDict[K, V]":
+    def __copy__(self) -> "DepqDict[K, V]":
         """Return a shallow copy of dict."""
         return self.copy()
 

@@ -1,7 +1,7 @@
-from heap_dict import HeapDict
+from depqdict import DepqDict
 
 
-def check_heapdict_invariants(heapdict: HeapDict) -> None:
+def check_heapdict_invariants(heapdict: DepqDict) -> None:
     mapping = heapdict._mapping
     heap = heapdict._heap
 
@@ -24,7 +24,7 @@ def check_heapdict_invariants(heapdict: HeapDict) -> None:
             assert heap[grandparent].priority >= heap[i].priority
 
 
-def assert_heapdict_is_empty(heapdict: HeapDict) -> None:
+def assert_heapdict_is_empty(heapdict: DepqDict) -> None:
     assert not len(heapdict)
     assert not len(heapdict._mapping)
     assert not len(heapdict._heap)

@@ -4,7 +4,7 @@
 import heapq
 import random
 
-from heap_dict import HeapDict
+from depqdict import DepqDict
 from tests.utils import assert_heapdict_is_empty, check_heapdict_invariants
 
 SEED = hash("Tarjan")
@@ -13,7 +13,7 @@ NUM_RANGE = 100_000_000
 
 def make_data(
     n: int,
-) -> tuple[HeapDict[int, float], list[tuple[int, float]], dict[int, float]]:
+) -> tuple[DepqDict[int, float], list[tuple[int, float]], dict[int, float]]:
     random.seed(SEED)
     pairs: list[tuple[int, float]] = [
         (
@@ -22,7 +22,7 @@ def make_data(
         )
         for _ in range(n)
     ]
-    h: HeapDict[int, float] = HeapDict(pairs)
+    h: DepqDict[int, float] = DepqDict(pairs)
     d = dict(pairs)
     pairs.sort(key=lambda x: x[1], reverse=True)
     return h, pairs, d
@@ -39,7 +39,7 @@ def test_popitem() -> None:
 
 
 def test_popitem_ties() -> None:
-    h: HeapDict[int, float] = HeapDict()
+    h: DepqDict[int, float] = DepqDict()
     for i in range(100):
         h[i] = 0
     for _ in range(100):
@@ -110,7 +110,7 @@ def test_max_k_items() -> None:
 
     random.shuffle(d)
 
-    new_heap: HeapDict[int, float] = HeapDict()
+    new_heap: DepqDict[int, float] = DepqDict()
 
     for key, value in d:
         if len(new_heap) < k:
@@ -139,7 +139,7 @@ def test_min_k_items() -> None:
 
     random.shuffle(d)
 
-    new_heap: HeapDict[int, float] = HeapDict()
+    new_heap: DepqDict[int, float] = DepqDict()
 
     for key, value in d:
         if len(new_heap) < k:
