@@ -30,7 +30,7 @@ def make_data(
         for _ in range(n)
     ]
     h: HeapDict[int, float] = HeapDict(pairs)
-    d = {k: v for k, v in pairs}
+    d = dict(pairs)
     pairs.sort(key=lambda x: x[1], reverse=True)
     return h, pairs, d
 

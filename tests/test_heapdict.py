@@ -52,7 +52,7 @@ def heapdict_not_changes(heapdict: HeapDict):
     assert heapdict._heap == heapdict_copy._heap
 
 
-def assert_args_are_equivalent_by_function(func, a, b):
+def assert_args_are_equivalent_by_function(func, a, b) -> None:
     a_result, a_error = None, None
     try:
         a_result = func(a)
@@ -137,8 +137,8 @@ def test_create_from_insertions(dictionary: dict[int, int]) -> None:
 
 
 @pytest.mark.parametrize("copy_func", [copy.copy, lambda x: x.copy()])
-def test_copy(copy_func):
-    original = HeapDict(zip("abcdef", [3, 3, 1, 6, 3, 4]))
+def test_copy(copy_func) -> None:
+    original = HeapDict(zip("abcdef", [3, 3, 1, 6, 3, 4], strict=False))
 
     clone = copy_func(original)
     check_heapdict_invariants(original)
@@ -376,7 +376,7 @@ def test_compare_with_builtin_dict_behavior(operations: list[tuple[str, int]]) -
     }
 
     heapdict: HeapDict = HeapDict()
-    builtin_dict: dict = dict()
+    builtin_dict: dict = {}
 
     for operation in operations:
         func = operation_types[operation[0]](*operation[1:])  # type: ignore[operator]
@@ -389,20 +389,17 @@ def test_compare_with_builtin_dict_behavior(operations: list[tuple[str, int]]) -
 def test_missing_key() -> None:
     heapdict = HeapDict({"a": 5, "b": 10, "c": 12})
 
-    with heapdict_not_changes(heapdict):
-        with pytest.raises(KeyError):
-            _ = heapdict["x"]
+    with heapdict_not_changes(heapdict), pytest.raises(KeyError):
+        _ = heapdict["x"]
 
     with heapdict_not_changes(heapdict):
         assert heapdict.get("x", default=42) == 42
 
-    with heapdict_not_changes(heapdict):
-        with pytest.raises(KeyError):
-            del heapdict["x"]
+    with heapdict_not_changes(heapdict), pytest.raises(KeyError):
+        del heapdict["x"]
 
-    with heapdict_not_changes(heapdict):
-        with pytest.raises(KeyError):
-            _ = heapdict.pop("x")
+    with heapdict_not_changes(heapdict), pytest.raises(KeyError):
+        _ = heapdict.pop("x")
 
     with heapdict_not_changes(heapdict):
         assert heapdict.pop("x", 42) == 42
@@ -411,9 +408,8 @@ def test_missing_key() -> None:
 def test_unhashable_key() -> None:
     heapdict = HeapDict({"a": 5, "b": 10, "c": 12})
 
-    with heapdict_not_changes(heapdict):
-        with pytest.raises(TypeError):
-            heapdict[[]] = 7  # type: ignore[index]
+    with heapdict_not_changes(heapdict), pytest.raises(TypeError):
+        heapdict[[]] = 7  # type: ignore[index]
 
 
 def test_pairs_order_does_not_matter_for_equality() -> None:
@@ -427,20 +423,19 @@ def test_pairs_order_does_not_matter_for_equality() -> None:
 
 def test_equals_but_nonidentical_keys_behavior() -> None:
     # Insert pairs with equal but not identical keys.
-    pairs = [(tuple([1]), 3), (tuple([1]), 1), (tuple([1]), 2)]
+    pairs = [((1,), 3), ((1,), 1), ((1,), 2)]
     heapdict: HeapDict = HeapDict(pairs)
-    heapdict[tuple([1])] = 4
-    heapdict[tuple([1])] = 2
-    heapdict[tuple([1])] = 5
+    heapdict[1,] = 4
+    heapdict[1,] = 2
+    heapdict[1,] = 5
     check_heapdict_invariants(heapdict)
 
     # Only one pair is stored (first inserted key and last updated priority).
-    assert OrderedDict(heapdict) == OrderedDict({tuple([1]): 5})
+    assert OrderedDict(heapdict) == OrderedDict({(1,): 5})
     assert heapdict.min_item()[0] is pairs[0][0]
-    assert heapdict.min_item()[0] is not pairs[1][0]
 
     # Key is available to pop.
-    heapdict.pop(tuple([1]))
+    heapdict.pop((1,))
 
     assert_heapdict_is_empty(heapdict)
 

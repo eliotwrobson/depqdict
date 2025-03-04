@@ -1,16 +1,17 @@
+# Based on heapdict by Evgeniy Selezniov, see
+# https://github.com/nanouasyn/heapdict/blob/main/heapdict.py
+
+
 import copy
-from collections.abc import Mapping, MutableMapping
+from collections.abc import Callable, Iterable, Iterator, Mapping, MutableMapping
 from dataclasses import dataclass
 from functools import partial
-from typing import Callable, Generic, Iterable, Iterator, TypeVar
+from typing import Generic, TypeVar
 
 K = TypeVar("K")  # Type variable for keys
 V = TypeVar("V")  # Type variable for values
 
 HeapItem = tuple[K, V]
-
-# Based on heapdict by Evgeniy Selezniov, see
-# https://github.com/nanouasyn/heapdict/blob/main/heapdict.py
 
 
 @dataclass(slots=True, order=True)

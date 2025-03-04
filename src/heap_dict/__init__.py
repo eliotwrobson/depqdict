@@ -1,1 +1,1 @@
-from .heapdict import HeapDict as HeapDict
+from .heapdict import HeapDict as HeapDict  # noqa: PLC0414
